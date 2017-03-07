@@ -72,10 +72,10 @@
         "description": "The NSG Name to assocaite with the NIC in the VM"
       }
     },
-    "storageAccountReference": {
+    "storageAccountUri": {
       "type": "string",
       "metadata": {
-        "description": "The storage account name for boot diagnostics for the VMs in the scale set"
+        "description": "The storage account URI for boot diagnostics for the VMs in the scale set"
       }
     }
   },
@@ -146,7 +146,7 @@
           "diagnosticsProfile": {
             "bootDiagnostics": {
               "enabled": "true",
-              "storageUri": "[Parameters('storageAccountReference').primaryEndpoints.blob]"
+              "storageUri": "[parameters('storageAccountUri')]"
             }
           }
         }

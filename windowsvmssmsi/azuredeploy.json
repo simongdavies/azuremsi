@@ -195,8 +195,8 @@
           "networkSecurityGroupName": {
             "value": "[variables('networkSecurityGroupName')]"
           },
-          "storageAccountReference": {
-            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName')))]"
+          "storageAccountUri": {
+            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
           }
         }
       }
