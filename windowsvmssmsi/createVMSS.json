@@ -80,7 +80,8 @@
     }
   },
   "variables": {
-    "computeAPIVersion":"2017-03-30"
+    "computeAPIVersion":"2017-03-30",
+    "authAPIVersion":"2016-07-01"
   },
   "resources": [
     
@@ -156,7 +157,7 @@
   "outputs": {
     "principalId": {
       "type": "string",
-      "value": "[reference(concat('Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))).identity.principalId]"
+      "value": "[reference(resourceId('Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName')),variables('authAPIVersion')).principalId]"
     }
   }
 }
