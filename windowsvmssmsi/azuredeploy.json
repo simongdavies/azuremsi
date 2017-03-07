@@ -195,8 +195,8 @@
           "networkSecurityGroupName": {
             "value": "[variables('networkSecurityGroupName')]"
           },
-          "storageAccountName": {
-            "value": "[variables('storageAccountName')]"
+          "storageAccountReference": {
+            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName')))]"
           }
         }
       }
@@ -222,7 +222,7 @@
       "dependsOn": [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "[resourceId('Microsoft.Authorization/roleAssignments','RBACAssignment'))]"
+        "[resourceId('Microsoft.Authorization/roleAssignments','RBACAssignment')]"
       ],
       "sku": {
         "name": "[parameters('vmSize')]",
