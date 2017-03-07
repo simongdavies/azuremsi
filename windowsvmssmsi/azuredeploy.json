@@ -85,10 +85,9 @@
     "storageAPIVersion":"2016-12-01",
     "networkAPIVersion":"2016-09-01",
     "deploymentAPIVersion":"2016-09-01",
-    "authAPIVersion":"2016-07-01",
     "containerName":"msi",
-    "owner": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
-    "createVMSSUrl":"[concat(parameters('_artifactsLocation'), '/createVMSS.json', parameters('_artifactsLocationSasToken'))]"
+    "createVMSSUrl":"[concat(parameters('_artifactsLocation'), '/createVMSS.json', parameters('_artifactsLocationSasToken'))]",
+    "createRBACUrl":"[concat(parameters('_artifactsLocation'), '/setUpRBAC.json', parameters('_artifactsLocationSasToken'))]",
   },
   "resources": [
     {
@@ -202,16 +201,26 @@
       }
     },
     {
-      "apiVersion": "[variables('authAPIVersion')]",
-      "name": "RBACAssignment",
-      "type": "Microsoft.Authorization/roleAssignments",
+      "name": "creatingRBAC",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('deploymentApiVersion')]",
       "dependsOn": [
         "Microsoft.Resources/deployments/creatingVMSS"
       ],
       "properties": {
-        "roleDefinitionId": "[variables('owner')]",
-        "principalId": " [reference('Microsoft.Resources/deployments/creatingVMSS', variables('deploymentApiVersion')).outputs.principalId.value]",
-        "scope": "[resourceId('Microsoft.Storage/storageAccounts',variables('storageAccountName'))]"
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('createRBACUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "principalId": {
+            "value": "[reference('Microsoft.Resources/deployments/creatingVMSS', variables('deploymentApiVersion')).outputs.principalId.value]"
+          },
+          "storageAccountName": {
+            "value": "[variables('storageAccountName')]"
+          }
+        }
       }
     },
     {
@@ -222,7 +231,7 @@
       "dependsOn": [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "[resourceId('Microsoft.Authorization/roleAssignments','RBACAssignment')]"
+        "Microsoft.Resources/deployments/creatingRBAC"
       ],
       "sku": {
         "name": "[parameters('vmSize')]",
