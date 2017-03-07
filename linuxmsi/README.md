@@ -12,6 +12,15 @@ ssh to the VM and execute the following commands to get an AccessToken for the M
 # Set the $tenantId to the value of your AAD tenant Id
 tenantId={Your Azure Active Directory Tenant Id}
 
-curl --data "authority=https://login.microsoftonline.com/$tenantId&resource=https://vault.azure.net" http://localhost:50342/oauth2/token
+# Set the resource 
+
+# Get a token for Key Vault
+#resource="https://vault.azure.net"
+
+# Get a token for ARM
+
+resource="https://management.azure.com/"
+
+curl --data "authority=https://login.microsoftonline.com/$tenantId&resource=$resource" http://localhost:50342/oauth2/token
 
 ```

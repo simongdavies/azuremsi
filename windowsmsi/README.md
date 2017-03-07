@@ -12,7 +12,16 @@ RDP to the VM and execute the following PowerShell commands to get an AccessToke
 # Set the $tenantId to the value of your AAD tenant Id
 $tenantId={Your Azure Active Directory Tenant Id}
 
-$postBody=@{authority="https://login.microsoftonline.com/$tenantId"; resource="https://vault.azure.net"}
+# Set the resource 
+
+# Get a token for Key Vault
+#$resource="https://vault.azure.net"
+
+# Get a token for ARM
+
+$resource="https://management.azure.com/"
+
+$postBody=@{authority="https://login.microsoftonline.com/$tenantId"; resource="$resource"}
 Invoke-WebRequest -Uri http://localhost:50342/oauth2/token -Method POST -Body $postBody
 
 ```
