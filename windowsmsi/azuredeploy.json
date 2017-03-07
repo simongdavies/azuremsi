@@ -64,7 +64,8 @@
     "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]",
     "computeAPIVersion":"2017-03-30",
     "storageAPIVersion":"2016-12-01",
-    "networkAPIVersion":"2016-09-01"
+    "networkAPIVersion":"2016-09-01",
+    "managedIdentityAPIVersion":"2015-08-31-PREVIEW"
   },
   "resources": [
     {
@@ -231,6 +232,10 @@
     "hostname": {
       "type": "string",
       "value": "[reference(variables('publicIPAddressName')).dnsSettings.fqdn]"
+    },
+     "principalId": {
+      "type": "string",
+      "value": "[reference(concat(resourceId('Microsoft.Compute/virtualMachines/', variables('vmName')),'/providers/Microsoft.ManagedIdentity/Identities/default'),variables('managedIdentityAPIVersion')).principalId]"
     }
   }
 }
