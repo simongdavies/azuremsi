@@ -13,7 +13,15 @@ param(
     $ContainerName
 )
 
-Install-Module AzureRM
+Write-Verbose 'Installing nuget Package Provider'
+
+Install-PackageProvider -Name nuget -ForceBootstrap
+
+Write-Verbose 'Installing AzureRM Module'
+
+Install-Module AzureRM -Force 
+
+Enable-AzureDataCollection 
 
 $retry=0
 $success=$false
@@ -29,6 +37,8 @@ do
     {
         try
         {
+           Write-Verbose "Getting Token Retry $retry"
+
            $reponse=Invoke-WebRequest -Uri http://localhost:50342/oauth2/token -Method POST -Body $postBody
            $result=ConvertFrom-Json -InputObject $reponse.Content
            $success=$true
@@ -60,6 +70,8 @@ do
     {
         try
         {
+
+           Write-Verbose "Logging in Retry $retry"
            # Subscription will be null until permission is granted
            $loginResult=Login-AzureRmAccount -AccessToken $result.access_token -AccountId  $SubscriptionId
            if ($loginResult.Context.Subscription.SubscriptionId -eq $SubscriptionId)
