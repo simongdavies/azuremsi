@@ -21,7 +21,6 @@ Write-Verbose 'Installing AzureRM Module'
 
 Install-Module AzureRM -Force 
 
-Enable-AzureDataCollection 
 
 $retry=0
 $success=$false
@@ -39,7 +38,7 @@ do
         {
            Write-Verbose "Getting Token Retry $retry"
 
-           $reponse=Invoke-WebRequest -Uri http://localhost:50342/oauth2/token -Method POST -Body $postBody
+           $reponse=Invoke-WebRequest -Uri http://localhost:50342/oauth2/token -Method POST -Body $postBody -UseBasicParsing
            $result=ConvertFrom-Json -InputObject $reponse.Content
            $success=$true
         }
