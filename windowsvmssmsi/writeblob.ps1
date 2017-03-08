@@ -15,7 +15,7 @@ param(
 
 Write-Verbose 'Installing nuget Package Provider'
 
-Install-PackageProvider -Name nuget -ForceBootstrap
+Install-PackageProvider -Name nuget -Force
 
 Write-Verbose 'Installing AzureRM Module'
 
