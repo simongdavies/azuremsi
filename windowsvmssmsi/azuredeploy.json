@@ -87,7 +87,7 @@
     "deploymentAPIVersion":"2016-09-01",
     "containerName":"msi",
     "createVMSSUrl":"[concat(parameters('_artifactsLocation'), '/createVMSS.json', parameters('_artifactsLocationSasToken'))]",
-    "createRBACUrl":"[concat(parameters('_artifactsLocation'), '/setUpRBAC.json', parameters('_artifactsLocationSasToken'))]",
+    "createRBACUrl":"[concat(parameters('_artifactsLocation'), '/setUpRBAC.json', parameters('_artifactsLocationSasToken'))]"
   },
   "resources": [
     {
