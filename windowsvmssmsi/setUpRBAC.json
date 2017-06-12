@@ -30,6 +30,6 @@
         "principalId": "[parameters('principalId')]",
         "scope": "[resourceId('Microsoft.Storage/storageAccounts',parameters('storageAccountName'))]"
       }
-    },
+    }
   ]
 }
