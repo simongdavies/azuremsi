@@ -210,15 +210,15 @@
     },
     {
         "type": "Microsoft.Compute/virtualMachines/extensions",
-        "name": "[concat(variables('vmName'),'/TestMSIWindowsExtension')]",
+        "name": "[concat(variables('vmName'),'/MSIWindowsExtension')]",
         "apiVersion": "[variables('computeAPIVersion')]",
         "location": "[parameters('Location')]",
         "dependsOn": [
             "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
         ],
         "properties": {
-            "publisher": "Microsoft.Azure.Test.Identity",
-            "type": "TestMSIWindowsExtension",
+            "publisher": "Microsoft.ManagedIdentity",
+            "type": "ManagedIdentityExtensionForWindows",
             "typeHandlerVersion": "1.0",
             "autoUpgradeMinorVersion": true,
             "settings": {

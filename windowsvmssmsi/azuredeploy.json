@@ -296,10 +296,10 @@
           "extensionProfile": {
             "extensions": [
               {
-                  "name": "TestMSIWindowsExtension",
+                  "name": "MSIWindowsExtension",
                   "properties": {
-                      "publisher": "Microsoft.Azure.Test.Identity",
-                      "type": "TestMSIWindowsExtension",
+                      "publisher": "Microsoft.ManagedIdentity",
+                      "type": "ManagedIdentityExtensionForWindows",
                       "typeHandlerVersion": "1.0",
                       "autoUpgradeMinorVersion": true,
                       "settings": {
