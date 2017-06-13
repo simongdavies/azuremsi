@@ -80,9 +80,8 @@
     "storageAPIVersion":"2016-12-01",
     "networkAPIVersion":"2016-09-01",
     "managedIdentityAPIVersion":"2015-08-31-PREVIEW",
-    "owner": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
-    "authAPIVersion":"2016-07-01"
-  
+    "deploymentAPIVersion":"2016-09-01",
+    "createVMUrl":"[concat(parameters('_artifactsLocation'), '/createVM.json', parameters('_artifactsLocationSasToken'))]", 
   },
   "resources": [
     {
@@ -182,86 +181,77 @@
       }
     },
     {
-      "apiVersion": "[variables('computeAPIVersion')]",
-      "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('vmName')]",
-      "location": "[parameters('Location')]",
-      "identity": { 
-          "type": "systemAssigned"
-      },
+      "name": "creatingVM",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('deploymentApiVersion')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+         "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
       ],
       "properties": {
-        "hardwareProfile": {
-          "vmSize": "[parameters('vmSize')]"
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('createVMUrl')]"
         },
-        "osProfile": {
-          "computerName": "[variables('vmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "MicrosoftWindowsServer",
-            "offer": "WindowsServer",
-            "sku": "[parameters('windowsOSVersion')]",
-            "version": "latest"
-          }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
+        "parameters": {
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          },
+          "windowsOSVersion": {
+              "value": "[parameters('windowsOSVersion')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "vmSize": {
+              "value": "[parameters('vmSize')]"
+          },
+          "vmName": {
+              "value": "[variables('VMName')]"
+          },
+          "nicName": {
+              "value": "[variables('nicName')]"
+          },
+          "storageAccountName": {
+              "value": "[variables('storageAccountName')]"
             }
-          ]
+        }
+      }
+    },
+    {
+      "name": "creatingRBAC",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('deploymentApiVersion')]",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/creatingVM"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('createRBACUrl')]",
+          "contentVersion": "1.0.0.0"
         },
-        "diagnosticsProfile": {
-          "bootDiagnostics": {
-            "enabled": "true",
-            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
+        "parameters": {
+          "principalId": {
+            "value": "[reference('Microsoft.Resources/deployments/creatingVM', variables('deploymentApiVersion')).outputs.principalId.value]"
+          },
+          "storageAccountName": {
+            "value": "[variables('storageAccountName')]"
           }
         }
       }
     },
     {
-        "type": "Microsoft.Compute/virtualMachines/extensions",
-        "name": "[concat(variables('vmName'),'/MSIWindowsExtension')]",
-        "apiVersion": "[variables('computeAPIVersion')]",
-        "location": "[parameters('Location')]",
-        "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-        ],
-        "properties": {
-            "publisher": "Microsoft.ManagedIdentity",
-            "type": "ManagedIdentityExtensionForWindows",
-            "typeHandlerVersion": "1.0",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-                "port": 50342
-            },
-            "protectedSettings": {}
-        }
-    },
-    {
-      "apiVersion": "[variables('authAPIVersion')]",
-      "name": "[concat(variables('storageAccountName'),'/Microsoft.Authorization/',reference(concat(resourceId('Microsoft.Compute/virtualMachines/', variables('vmName')),'/providers/Microsoft.ManagedIdentity/Identities/default'),variables('authAPIVersion')).principalId)]",
-      "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
-      "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-      ],
-      "properties": {
-        "roleDefinitionId": "[variables('owner')]",
-        "principalId": "[reference(concat(resourceId('Microsoft.Compute/virtualMachines/', variables('vmName')),'/providers/Microsoft.ManagedIdentity/Identities/default'),variables('authAPIVersion')).principalId)]",
-        "scope": "[resourceId('Microsoft.Storage/storageAccounts',parameters('storageAccountName'))]"
-      }
-    },
-    {
-      "name": "[concat(variables('vmName'),'/customscriptextension'))]",
+      "name": "[concat(variables('vmName'),'/customscriptextension')]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "[variables('computeAPIVersion')]",
       "location": "[parameters('Location')]",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/creatingRBAC"
+      ],
       "properties": {
           "publisher": "Microsoft.Compute",
           "type": "CustomScriptExtension",
@@ -283,7 +273,7 @@
     },
      "principalId": {
       "type": "string",
-      "value": "[reference(concat(resourceId('Microsoft.Compute/virtualMachines/', variables('vmName')),'/providers/Microsoft.ManagedIdentity/Identities/default'),variables('managedIdentityAPIVersion')).principalId]"
+      "value": "[reference('Microsoft.Resources/deployments/creatingVM', variables('deploymentApiVersion')).outputs.principalId.value]"
     }
   }
 }
