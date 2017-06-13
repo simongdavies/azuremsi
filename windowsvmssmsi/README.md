@@ -8,6 +8,6 @@ This template creates a new Windows VMSS with a MSI and deploys the MSI extensio
 
 The default configuration will deploy a scaleset with 2 DS1_V2 VMs
 
-The MSI assocaited with the VMSS will be given owner permission on a storage account that is created by the template
+The MSI associated with the VMSS will be given owner permission on a storage account that is created by the template
 
 Each VM in the scaleset will write a blob to a container in the storage account, each blob will contain the date and time that the file was created
