@@ -23,7 +23,7 @@ param(
     $ContainerName='msi'
 )
 
-if (!(Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) 
+if (!(Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue -ListAvailable)) 
 {
     Write-Verbose 'Installing nuget Package Provider'
     Install-PackageProvider -Name nuget -Force
