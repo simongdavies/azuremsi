@@ -52,7 +52,7 @@
         "description": "The Docker image to rin the azure CLI from"
       }, 
       "defaultValue": "azuresdk/azure-cli-python:latest"
-    },   ,
+    },  
     "_artifactsLocation": {
         "type": "string",
         "metadata": {
@@ -238,7 +238,7 @@
               "value": "[variables('storageAccountName')]"
           },
           "linuxConfiguration": {
-              "value": "[variables('linuxConfiguration')]"
+              "value": "[variables(variables('linuxConfigurationChosen'))]"
           }
         }
       }
