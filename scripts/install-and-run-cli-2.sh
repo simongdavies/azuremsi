@@ -50,7 +50,7 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubun
 sudo apt-get -y update
 sudo apt-get -y install docker-ce
 sudo docker run -v `pwd`:/scripts --network='host' \
--e SUBSCRIPITON_ID=${subscription_id} \
+-e SUBSCRIPTION_ID=${subscription_id} \
 -e STORAGE_ACCOUNT=${storage_account} \
 -e CONTAINER_NAME=${container_name} \
 -e RESOURCE_GROUP=${resource_group} \
