@@ -77,7 +77,7 @@
         "osProfile": {
           "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminUsername')]",ß
+          "adminPassword": "[parameters('adminPassword')]",
           "linuxConfiguration": "[parameters('linuxConfiguration')]"
         },
         "storageProfile": {
