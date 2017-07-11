@@ -56,7 +56,7 @@
     "_artifactsLocationSasToken": {
         "type": "securestring",
         "metadata": {
-            "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated."
+            "description": "The sasToken required to access _artifactsLocation."
         },
         "defaultValue": ""
     }  
@@ -79,7 +79,7 @@
     "deploymentAPIVersion":"2016-09-01",
     "containerName":"msi",
     "createVMUrl":"[concat(parameters('_artifactsLocation'), '/createVM.json', parameters('_artifactsLocationSasToken'))]",
-    "createRBACUrl":"[concat(parameters('_artifactsLocation'), '/setUpRBAC.json', parameters('_artifactsLocationSasToken'))]"
+    "createRBACUrl":"[concat(substring(parameters('_artifactsLocation'),0,lastIndexof(parameters('_artifactsLocation'),'/')), '/templates/setUpRBAC.json', parameters('_artifactsLocationSasToken'))]"
   },
   "resources": [
     {
