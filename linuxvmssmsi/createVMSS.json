@@ -38,6 +38,12 @@
         "description": "The name of the scale set"
       }
     },
+    "vmssPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The name prefix for the VMs in the scale set"
+      }
+    },
     "nicName": {
       "type": "string",
       "metadata": {

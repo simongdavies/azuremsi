@@ -71,6 +71,7 @@
     }  
   },
   "variables": {
+    "vmssPrefix": "vmss",
     "storageAccountName": "[concat(variables('vmssPrefix'),uniquestring(resourceGroup().id,deployment().name))]",
     "nicName": "[concat('nic',uniquestring(resourceGroup().id,deployment().name))]",
     "networkSecurityGroupName":"[concat('nsg',uniquestring(resourceGroup().id,deployment().name))]",
@@ -180,6 +181,9 @@
           },
           "vmssName": {
             "value": "[variables('vmssName')]"
+          },
+          "vmssPrefix": {
+            "value": "[variables('vmssPrefix')]"
           },
           "nicName": {
             "value": "[variables('nicName')]"
