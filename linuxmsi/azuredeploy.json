@@ -45,6 +45,27 @@
         "description": "The size of the VM to create"
       }, 
       "defaultValue": "Standard_DS1_V2"
+    },
+    "azureCLI2DockerImage":{
+      "type": "string",
+      "metadata": {
+        "description": "The Docker image to rin the azure CLI from"
+      }, 
+      "defaultValue": "azuresdk/azure-cli-python:latest"
+    },  
+    "_artifactsLocation": {
+        "type": "string",
+        "metadata": {
+            "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+        },
+        "defaultValue": "https://raw.githubusercontent.com/simongdavies/azuremsi/prodext/linuxmsi"
+    },
+    "_artifactsLocationSasToken": {
+        "type": "securestring",
+        "metadata": {
+            "description": "The sasToken required to access _artifactsLocation."
+        },
+        "defaultValue": ""
     }
   },
   "variables": {
@@ -62,9 +83,7 @@
     "storageAPIVersion":"2016-12-01",
     "networkAPIVersion":"2016-09-01",
     "managedIdentityAPIVersion":"2015-08-31-PREVIEW",
-    "publisher": "Canonical",
-    "offer": "UbuntuServer",
-    "sku": "16.04-LTS",
+    "deploymentAPIVersion":"2016-09-01",
     "linuxConfigurationChosen": "[concat('linuxConfiguration', parameters('authenticationType'))]",
     "linuxConfigurationsshPublicKey": {
       "disablePasswordAuthentication": true,
@@ -82,7 +101,10 @@
     },
     "adminPasswordChosen": "[concat('adminPassword', parameters('authenticationType'))]",
     "adminPasswordsshPublicKey": "",
-    "adminPasswordpassword": "[parameters('adminPasswordorSSHKey')]"
+    "adminPasswordpassword": "[parameters('adminPasswordorSSHKey')]",
+    "containerName":"msi",
+    "createVMUrl":"[concat(parameters('_artifactsLocation'), '/createVM.json', parameters('_artifactsLocationSasToken'))]",
+    "createRBACUrl":"[concat(substring(parameters('_artifactsLocation'),0,lastIndexof(parameters('_artifactsLocation'),'/')), '/templates/setUpRBAC.json', parameters('_artifactsLocationSasToken'))]"
   },
   "resources": [
     {
@@ -182,68 +204,92 @@
       }
     },
     {
-      "apiVersion": "[variables('computeAPIVersion')]",
-      "type": "Microsoft.Compute/virtualMachines",
-      "name": "[variables('vmName')]",
-      "location": "[parameters('Location')]",
-      "identity": { 
-          "type": "systemAssigned"
-      },
+      "name": "creatingVM",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('deploymentApiVersion')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+         "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
       ],
       "properties": {
-        "hardwareProfile": {
-          "vmSize": "[parameters('vmSize')]"
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('createVMUrl')]"
         },
-        "osProfile": {
-          "computerName": "[variables('vmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[variables(variables('adminPasswordChosen'))]",
-          "linuxConfiguration": "[variables(variables('linuxConfigurationChosen'))]"
-        },
-        "storageProfile": {
-          "imageReference": {
-            "publisher": "[variables('publisher')]",
-            "offer": "[variables('offer')]",
-            "sku": "[variables('sku')]",
-            "version": "latest"
-          }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
-            }
-          ]
-        },
-        "diagnosticsProfile": {
-          "bootDiagnostics": {
-            "enabled": "true",
-            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
+        "parameters": {
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "adminPassword": {
+            "value": "[variables('adminPasswordChosen')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "vmSize": {
+              "value": "[parameters('vmSize')]"
+          },
+          "vmName": {
+              "value": "[variables('VMName')]"
+          },
+          "nicName": {
+              "value": "[variables('nicName')]"
+          },
+          "storageAccountName": {
+              "value": "[variables('storageAccountName')]"
+          },
+          "linuxConfiguration": {
+              "value": "[variables(variables('linuxConfigurationChosen'))]"
           }
         }
       }
     },
     {
-        "type": "Microsoft.Compute/virtualMachines/extensions",
-        "name": "[concat(variables('vmName'),'/MSILinuxExtension')]",
-        "apiVersion": "[variables('computeAPIVersion')]",
-        "location": "[parameters('Location')]",
-        "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
-        ],
-        "properties": {
-            "publisher": "Microsoft.ManagedIdentity",
-            "type": "ManagedIdentityExtensionForLinux",
-            "typeHandlerVersion": "1.0",
-            "autoUpgradeMinorVersion": true  ,
-            "settings": {
-                "port": 50342
-            },
-            "protectedSettings": {}
+      "name": "creatingRBAC",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('deploymentApiVersion')]",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/creatingVM"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('createRBACUrl')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "principalId": {
+            "value": "[reference('Microsoft.Resources/deployments/creatingVM', variables('deploymentApiVersion')).outputs.principalId.value]"
+          },
+          "storageAccountName": {
+            "value": "[variables('storageAccountName')]"
+          }
         }
+      }
+    },
+    {
+      "name": "[concat(variables('vmName'),'/customscriptextension')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "[variables('computeAPIVersion')]",
+      "location": "[parameters('Location')]",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/creatingRBAC"
+      ],
+      "properties": {
+          "publisher": "Microsoft.Azure.Extensions",
+          "type": "CustomScript",
+          "typeHandlerVersion": "2.0",
+          "autoUpgradeMinorVersion": true,
+          "settings": {
+              "fileUris": [
+                  "[concat(substring(parameters('_artifactsLocation'),0,lastIndexof(parameters('_artifactsLocation'),'/')), '/scripts/writeblob.sh', parameters('_artifactsLocationSasToken'))]",
+                  "[concat(substring(parameters('_artifactsLocation'),0,lastIndexof(parameters('_artifactsLocation'),'/')), '/scripts/install-and-run-cli-2.sh', parameters('_artifactsLocationSasToken'))]"
+              ]
+          },
+          "protectedSettings": {
+            "commandToExecute": "[concat('./install-and-run-cli-2.sh -i \"', parameters('azureCLI2DockerImage'),'\" -s \"', subscription().subscriptionId, '\" -a \"', variables('storageAccountName'), '\" -c \"', variables('containerName'), '\" -r \"', resourceGroup().Name,'\"')]"
+          }
+      }
     }
   ],
   "outputs": {

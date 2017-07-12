@@ -14,21 +14,6 @@
         "description": "Password for the Virtual Machine."
       }
     },
-    "windowsOSVersion": {
-      "type": "string",
-      "defaultValue": "2012-R2-Datacenter",
-      "allowedValues": [
-        "2008-R2-SP1",
-        "2012-Datacenter",
-        "2012-R2-Datacenter",
-        "2016-Nano-Server",
-        "2016-Datacenter-with-Containers",
-        "2016-Datacenter"
-      ],
-      "metadata": {
-        "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
-      }
-    },
     "location": {
       "type": "string",
       "metadata": {
@@ -52,20 +37,29 @@
      "nicName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the NIC"
+        "description": "The name of the NIC to create"
       }
     },
      "storageAccountName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the Storage Account to create"
+        "description": "The name of the storage account to create"
+      }
+    },
+     "linuxConfiguration": {
+      "type": "object",
+      "metadata": {
+        "description": "The Linux configuration object"
       }
     }
   },
   "variables": {
     "computeAPIVersion":"2017-03-30",
     "managedIdentityAPIVersion":"2015-08-31-PREVIEW",
-    "storageAPIVersion":"2017-06-01"
+    "storageAPIVersion":"2017-06-01",
+    "publisher": "Canonical",
+    "offer": "UbuntuServer",
+    "sku": "16.04-LTS"
   },
   "resources": [
     {
@@ -83,13 +77,14 @@
         "osProfile": {
           "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "adminPassword": "[parameters('adminPassword')]",
+          "linuxConfiguration": "[parameters('linuxConfiguration')]"
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "MicrosoftWindowsServer",
-            "offer": "WindowsServer",
-            "sku": "[parameters('windowsOSVersion')]",
+            "publisher": "[variables('publisher')]",
+            "offer": "[variables('offer')]",
+            "sku": "[variables('sku')]",
             "version": "latest"
           }
         },
@@ -110,7 +105,7 @@
     },
     {
         "type": "Microsoft.Compute/virtualMachines/extensions",
-        "name": "[concat(parameters('vmName'),'/MSIWindowsExtension')]",
+        "name": "[concat(parameters('vmName'),'/MSILinuxExtension')]",
         "apiVersion": "[variables('computeAPIVersion')]",
         "location": "[parameters('Location')]",
         "dependsOn": [
@@ -118,15 +113,15 @@
         ],
         "properties": {
             "publisher": "Microsoft.ManagedIdentity",
-            "type": "ManagedIdentityExtensionForWindows",
+            "type": "ManagedIdentityExtensionForLinux",
             "typeHandlerVersion": "1.0",
-            "autoUpgradeMinorVersion": true,
+            "autoUpgradeMinorVersion": true  ,
             "settings": {
                 "port": 50342
             },
             "protectedSettings": {}
         }
-    }    
+    } 
   ],
   "outputs": {
      "principalId": {
