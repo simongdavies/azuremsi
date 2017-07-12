@@ -51,6 +51,24 @@
       "metadata": {
         "description": "The Linux configuration object"
       }
+    },
+    "publisher": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM Publisher"
+      }
+    },
+    "offer": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM Offer"
+      }
+    },
+    "SKU": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM SKU"
+      }
     }
   },
   "variables": {
@@ -82,9 +100,9 @@
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[variables('publisher')]",
-            "offer": "[variables('offer')]",
-            "sku": "[variables('sku')]",
+            "publisher": "[parameters('publisher')]",
+            "offer": "[parameters('offer')]",
+            "sku": "[parameters('sku')]",
             "version": "latest"
           }
         },
