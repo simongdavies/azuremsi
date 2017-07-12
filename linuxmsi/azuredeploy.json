@@ -102,6 +102,7 @@
     "adminPasswordChosen": "[concat('adminPassword', parameters('authenticationType'))]",
     "adminPasswordsshPublicKey": "",
     "adminPasswordpassword": "[parameters('adminPasswordorSSHKey')]",
+    "containerName":"msi",
     "createVMUrl":"[concat(parameters('_artifactsLocation'), '/createVM.json', parameters('_artifactsLocationSasToken'))]",
     "createRBACUrl":"[concat(substring(parameters('_artifactsLocation'),0,lastIndexof(parameters('_artifactsLocation'),'/')), '/templates/setUpRBAC.json', parameters('_artifactsLocationSasToken'))]"
   },
@@ -286,7 +287,7 @@
               ]
           },
           "protectedSettings": {
-            "commandToExecute": "[concat('install-and-run-cli-2.sh -i \"', parameters('azureCLI2DockerImage'),'\" -s \"', subscription().subscriptionId, '\" -a \"', variables('storageAccountName'), '\" -c \"', variables('containerName'), '\"')]"
+            "commandToExecute": "[concat('./install-and-run-cli-2.sh -i \"', parameters('azureCLI2DockerImage'),'\" -s \"', subscription().subscriptionId, '\" -a \"', variables('storageAccountName'), '\" -c \"', variables('containerName'), '\" -r \"', resourceGroup().Name,'\"')]"
           }
       }
     }

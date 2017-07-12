@@ -6,6 +6,8 @@ else
     CONTAINER_NAME=$(echo "$CONTAINER_NAME"|tr '[:upper:]' '[:lower:]')
 fi
 
+# The default port for the MSI extension is 50342
+
 if [ -z $PORT ]; then
     PORT=50342
 fi
@@ -20,11 +22,11 @@ do
 
 done
 
-# login using msi
+# login using msi 
 
 az login -u ${SUBSCRIPTION_ID}@${PORT}
 
-# create a file and upload it to staorage account using a key obtained via MSI auth to ARM
+# create a file and upload it to storage account using a key obtained via the logged in MSI , the MSI must have permission to perfrm these operations
 
 storage_account_key=`az storage account keys list -n ${STORAGE_ACCOUNT} -g ${RESOURCE_GROUP}|jq '.[0].value'`
 

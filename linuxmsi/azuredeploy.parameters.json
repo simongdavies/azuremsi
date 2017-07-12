@@ -1,0 +1,21 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminUsername": {
+      "value": "simon"
+    },
+    "authenticationType": {
+      "value":  "sshPublicKey",
+    },
+    "adminPasswordorSSHKey" : {
+      "value": "Provide either Password or SSH Key depending on the value of the authenticationType Parameter"
+    },
+    "azureCLI2DockerImage": {
+      "value": "simongdavies/azure-cli-msi"
+    },
+    "_artifactsLocation":{
+      "value": "https://raw.githubusercontent.com/simongdavies/azuremsi/cli-msi/linuxmsi"
+    }
+  }
+}
