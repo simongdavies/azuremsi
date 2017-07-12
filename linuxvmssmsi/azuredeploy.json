@@ -214,7 +214,7 @@
            "value": "[parameters('adminUsername')]"
           },
           "adminPassword": {
-            "value": "[variables('adminPasswordChosen')]"
+            "value": "[variables(variables('adminPasswordChosen'))]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -320,7 +320,7 @@
           "osProfile": {
             "computerNamePrefix": "[variables('vmssPrefix')]",
             "adminUsername": "[parameters('adminUsername')]",
-            "adminPassword": "[variables(variables('linuxConfigurationChosen'))]",
+            "adminPassword": "[variables(variables('adminPasswordChosen'))]",
             "linuxConfiguration": "[variables(variables('linuxConfigurationChosen'))]"
           },
           "networkProfile": {

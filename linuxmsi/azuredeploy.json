@@ -242,7 +242,7 @@
             "value": "[parameters('adminUsername')]"
           },
           "adminPassword": {
-            "value": "[variables('adminPasswordChosen')]"
+            "value": "[variables(variables('adminPasswordChosen'))]"
           },
           "location": {
             "value": "[parameters('location')]"
