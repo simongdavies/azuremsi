@@ -179,12 +179,12 @@
         "properties": {
             "securityRules": [
                 {
-                    "name": "default-allow-rdp",
+                    "name": "default-allow-ssh",
                     "properties": {
                         "priority": 1000,
                         "sourceAddressPrefix": "VirtualNetwork",
                         "protocol": "TCP",
-                        "destinationPortRange": "3389",
+                        "destinationPortRange": "22",
                         "access": "Allow",
                         "direction": "Inbound",
                         "sourcePortRange": "*",
@@ -335,6 +335,15 @@
                       "properties": {
                         "subnet": {
                           "id": "[variables('subnetRef')]"
+                        }
+                      },
+                      "publicipaddressconfiguration": {
+                        "name": "pubip1",
+                        "properties": {
+                          "idleTimeoutInMinutes": 15,
+                          "dnsSettings": {
+                            "domainNameLabel": "[variables('vmssName')]"
+                          }
                         }
                       }
                     }
