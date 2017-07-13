@@ -148,14 +148,14 @@
                       "properties": {
                         "subnet": {
                           "id": "[parameters('subnetRef')]"
-                        }
-                      },
-                      "publicipaddressconfiguration": {
-                        "name": "pubip1",
-                        "properties": {
-                          "idleTimeoutInMinutes": 15,
-                          "dnsSettings": {
-                            "domainNameLabel": "[parameters('vmssName')]"
+                        },
+                        "publicipaddressconfiguration": {
+                          "name": "pubip1",
+                          "properties": {
+                            "idleTimeoutInMinutes": 15,
+                            "dnsSettings": {
+                              "domainNameLabel": "[parameters('vmssName')]"
+                            }
                           }
                         }
                       }

@@ -276,14 +276,14 @@
                       "properties": {
                         "subnet": {
                           "id": "[variables('subnetRef')]"
-                        }
-                      },
-                      "publicipaddressconfiguration": {
-                        "name": "pubip1",
-                        "properties": {
-                          "idleTimeoutInMinutes": 15,
-                          "dnsSettings": {
-                            "domainNameLabel": "[variables('vmssName')]"
+                        },
+                        "publicipaddressconfiguration": {
+                          "name": "pubip1",
+                          "properties": {
+                            "idleTimeoutInMinutes": 15,
+                            "dnsSettings": {
+                              "domainNameLabel": "[variables('vmssName')]"
+                            }
                           }
                         }
                       }
