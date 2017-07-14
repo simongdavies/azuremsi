@@ -337,7 +337,7 @@
                           "id": "[variables('subnetRef')]"
                         },                     
                         "publicipaddressconfiguration": {
-                          "name": "pubip1",
+                          "name": "publicip",
                           "properties": {
                             "idleTimeoutInMinutes": 15,
                             "dnsSettings": {
