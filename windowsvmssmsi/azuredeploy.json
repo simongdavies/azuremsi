@@ -133,7 +133,7 @@
                     "name": "default-allow-rdp",
                     "properties": {
                         "priority": 1000,
-                        "sourceAddressPrefix": "VirtualNetwork",
+                        "sourceAddressPrefix": "*",
                         "protocol": "TCP",
                         "destinationPortRange": "3389",
                         "access": "Allow",

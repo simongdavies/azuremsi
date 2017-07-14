@@ -182,7 +182,7 @@
                     "name": "default-allow-ssh",
                     "properties": {
                         "priority": 1000,
-                        "sourceAddressPrefix": "VirtualNetwork",
+                        "sourceAddressPrefix": "*",
                         "protocol": "TCP",
                         "destinationPortRange": "22",
                         "access": "Allow",
