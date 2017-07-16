@@ -364,7 +364,7 @@
           "extensionProfile": {
             "extensions": [
               {
-                "name": "MSIWindowsExtension",
+                "name": "MSILinuxExtension",
                 "properties": {
                     "publisher": "Microsoft.ManagedIdentity",
                     "type": "ManagedIdentityExtensionForLinux",
