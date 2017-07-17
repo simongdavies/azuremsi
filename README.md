@@ -5,3 +5,4 @@ This repo contains a number of samples that demonstrate how to use Azure MSI fro
 - [Windows VM](windowsmsi/README.md)
 - [Windows VMSS](windowsvmssmsi/README.md)
 - [Linux VM](linuxmsi/README.md)
+- [Linux VMSS](linuxvmssmsi/README.md)
