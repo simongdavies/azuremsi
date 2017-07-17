@@ -5,10 +5,7 @@
     "adminUsername": {
       "value": ""
     },
-    "authenticationType": {
-      "value":  "sshPublicKey",
-    },
-    "adminPasswordorSSHKey" : {
+    "adminPassword" : {
       "value": ""
     }
   }

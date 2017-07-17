@@ -6,7 +6,7 @@
       "value": ""
     },
     "authenticationType": {
-      "value":  "sshPublicKey",
+      "value":  "sshPublicKey"
     },
     "adminPasswordorSSHKey" : {
       "value": ""

@@ -47,18 +47,18 @@
       "defaultValue": "Standard_DS1_V2"
     },
     "_artifactsLocation": {
-        "type": "string",
-        "metadata": {
-            "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
-        },
-        "defaultValue": "https://raw.githubusercontent.com/simongdavies/azuremsi/prodext/windowsmsi"
+      "type": "string",
+      "metadata": {
+          "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+      },
+      "defaultValue": "https://raw.githubusercontent.com/simongdavies/azuremsi/master/windowsmsi"
     },
     "_artifactsLocationSasToken": {
-        "type": "securestring",
-        "metadata": {
-            "description": "The sasToken required to access _artifactsLocation."
-        },
-        "defaultValue": ""
+      "type": "securestring",
+      "metadata": {
+          "description": "The sasToken required to access _artifactsLocation."
+      },
+      "defaultValue": ""
     }  
   },
   "variables": {
@@ -127,27 +127,27 @@
       }
     },
     {
-        "name": "[variables('networkSecurityGroupName')]",
-        "type": "Microsoft.Network/networkSecurityGroups",
-        "apiVersion": "[variables('networkAPIVersion')]",
-        "location": "[parameters('location')]",
-        "properties": {
-            "securityRules": [
-                {
-                    "name": "default-allow-rdp",
-                    "properties": {
-                        "priority": 1000,
-                        "sourceAddressPrefix": "*",
-                        "protocol": "TCP",
-                        "destinationPortRange": "3389",
-                        "access": "Allow",
-                        "direction": "Inbound",
-                        "sourcePortRange": "*",
-                        "destinationAddressPrefix": "*"
-                    }
-                }
-            ]
-        }
+      "name": "[variables('networkSecurityGroupName')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "[variables('networkAPIVersion')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "default-allow-rdp",
+            "properties": {
+              "priority": 1000,
+              "sourceAddressPrefix": "*",
+              "protocol": "TCP",
+              "destinationPortRange": "3389",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*"
+            }
+          }
+        ]
+      }
     },
     {
       "apiVersion": "[variables('networkAPIVersion')]",
@@ -183,8 +183,8 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "[variables('deploymentApiVersion')]",
       "dependsOn": [
-         "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-         "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -215,7 +215,7 @@
           },
           "storageAccountName": {
               "value": "[variables('storageAccountName')]"
-            }
+          }
         }
       }
     },
@@ -251,16 +251,16 @@
         "Microsoft.Resources/deployments/creatingRBAC"
       ],
       "properties": {
-          "publisher": "Microsoft.Compute",
-          "type": "CustomScriptExtension",
-          "typeHandlerVersion": "1.8",
-          "autoUpgradeMinorVersion": true,
-          "settings": {
-              "fileUris": [
-                  "[concat(substring(parameters('_artifactsLocation'),0,lastIndexof(parameters('_artifactsLocation'),'/')), '/scripts/writeblob.ps1', parameters('_artifactsLocationSasToken'))]"
-              ],
-              "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File  .\\writeblob.ps1  -SubscriptionId ',subscription().subscriptionId,' -TenantId ',subscription().tenantId,' -ResourceGroupName ',resourceGroup().Name,' -StorageAccountName ',variables('storageAccountName'),' -ContainerName ',variables('containerName'),' -Verbose')]"
-          }
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.8",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[concat(substring(parameters('_artifactsLocation'),0,lastIndexof(parameters('_artifactsLocation'),'/')), '/scripts/writeblob.ps1', parameters('_artifactsLocationSasToken'))]"
+          ],
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File  .\\writeblob.ps1  -SubscriptionId ',subscription().subscriptionId,' -TenantId ',subscription().tenantId,' -ResourceGroupName ',resourceGroup().Name,' -StorageAccountName ',variables('storageAccountName'),' -ContainerName ',variables('containerName'),' -Verbose')]"
+        }
       }
     }
   ],
