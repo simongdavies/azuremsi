@@ -51,15 +51,30 @@
       "metadata": {
         "description": "The Linux configuration object"
       }
+    },
+    "publisher": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM Publisher"
+      }
+    },
+    "offer": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM Offer"
+      }
+    },
+    "SKU": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM SKU"
+      }
     }
   },
   "variables": {
     "computeAPIVersion":"2017-03-30",
     "managedIdentityAPIVersion":"2015-08-31-PREVIEW",
-    "storageAPIVersion":"2017-06-01",
-    "publisher": "Canonical",
-    "offer": "UbuntuServer",
-    "sku": "16.04-LTS"
+    "storageAPIVersion":"2017-06-01"
   },
   "resources": [
     {
@@ -82,9 +97,9 @@
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[variables('publisher')]",
-            "offer": "[variables('offer')]",
-            "sku": "[variables('sku')]",
+            "publisher": "[parameters('publisher')]",
+            "offer": "[parameters('offer')]",
+            "sku": "[parameters('sku')]",
             "version": "latest"
           }
         },

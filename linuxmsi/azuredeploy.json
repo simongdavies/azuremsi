@@ -58,7 +58,7 @@
         "metadata": {
             "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
         },
-        "defaultValue": "https://raw.githubusercontent.com/simongdavies/azuremsi/prodext/linuxmsi"
+        "defaultValue": "https://raw.githubusercontent.com/simongdavies/azuremsi/master/linuxmsi"
     },
     "_artifactsLocationSasToken": {
         "type": "securestring",
@@ -66,6 +66,27 @@
             "description": "The sasToken required to access _artifactsLocation."
         },
         "defaultValue": ""
+    },
+    "publisher": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM Publisher"
+      },
+      "defaultValue": "Canonical"
+    },
+    "offer": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM Offer"
+      },
+      "defaultValue": "UbuntuServer"
+    },
+    "SKU": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM SKU"
+      },
+      "defaultValue": "16.04-LTS"
     }
   },
   "variables": {
@@ -221,7 +242,7 @@
             "value": "[parameters('adminUsername')]"
           },
           "adminPassword": {
-            "value": "[variables('adminPasswordChosen')]"
+            "value": "[variables(variables('adminPasswordChosen'))]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -240,6 +261,15 @@
           },
           "linuxConfiguration": {
               "value": "[variables(variables('linuxConfigurationChosen'))]"
+          },
+          "publisher": {
+            "value": "[parameters('publisher')]"
+          },
+          "offer": {
+            "value": "[parameters('offer')]"
+          },
+          "SKU": {
+            "value": "[parameters('SKU')]"
           }
         }
       }

@@ -14,16 +14,6 @@
         "description": "Password for the Virtual Machine."
       }
     },
-    "windowsOSVersion": {
-      "type": "string",
-      "allowedValues": [
-        "2016-Datacenter-with-Containers",
-        "2016-Datacenter"
-      ],
-      "metadata": {
-        "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
-      }
-    },
     "location": {
       "type": "string",
       "metadata": {
@@ -77,6 +67,30 @@
       "metadata": {
         "description": "The storage account URI for boot diagnostics for the VMs in the scale set"
       }
+    },
+     "linuxConfiguration": {
+      "type": "object",
+      "metadata": {
+        "description": "The Linux configuration object"
+      }
+    },
+    "publisher": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM Publisher"
+      }
+    },
+    "offer": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM Offer"
+      }
+    },
+    "SKU": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM SKU"
+      }
     }
   },
   "variables": {
@@ -110,16 +124,17 @@
               "createOption": "FromImage"
             },
             "imageReference": {
-              "publisher": "MicrosoftWindowsServer",
-              "offer": "WindowsServer",
-              "sku": "[parameters('windowsOSVersion')]",
+              "publisher": "[parameters('publisher')]",
+              "offer": "[parameters('offer')]",
+              "sku": "[parameters('sku')]",
               "version": "latest"
             }
           },
           "osProfile": {
             "computerNamePrefix": "[parameters('vmssPrefix')]",
             "adminUsername": "[parameters('adminUsername')]",
-            "adminPassword": "[parameters('adminPassword')]"
+            "adminPassword": "[parameters('adminPassword')]",
+            "linuxConfiguration": "[parameters('linuxConfiguration')]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
@@ -133,7 +148,7 @@
                       "properties": {
                         "subnet": {
                           "id": "[parameters('subnetRef')]"
-                      },
+                        },
                         "publicipaddressconfiguration": {
                           "name": "publicip",
                           "properties": {

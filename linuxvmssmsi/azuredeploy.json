@@ -8,21 +8,21 @@
         "description": "Username for the Virtual Machine."
       }
     },
-    "adminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Password for the Virtual Machine."
-      }
-    },
-    "windowsOSVersion": {
+    "authenticationType": {
       "type": "string",
-      "defaultValue": "2016-Datacenter",
+      "defaultValue": "password",
       "allowedValues": [
-        "2016-Datacenter-with-Containers",
-        "2016-Datacenter"
+        "password",
+        "sshPublicKey"
       ],
       "metadata": {
-        "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
+        "description": "Authentication type"
+      }
+    },
+    "adminPasswordorSSHKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "OS Admin password or SSH Key depending on value of authentication type"
       }
     },
     "location": {
@@ -55,19 +55,47 @@
       },
       "defaultValue": false
     },
-    "_artifactsLocation": {
+    "azureCLI2DockerImage":{
       "type": "string",
       "metadata": {
-          "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
-      },
-      "defaultValue": "https://raw.githubusercontent.com/simongdavies/azuremsi/master/windowsvmssmsi"
+        "description": "The Docker image to rin the azure CLI from"
+      }, 
+      "defaultValue": "azuresdk/azure-cli-python:latest"
+    },  
+    "_artifactsLocation": {
+        "type": "string",
+        "metadata": {
+            "description": "The base URI where artifacts required by this template are located. When the template is deployed using the accompanying scripts, a private location in the subscription will be used and this value will be automatically generated."
+        },
+        "defaultValue": "https://raw.githubusercontent.com/simongdavies/azuremsi/master/windowsvmssmsi"
     },
     "_artifactsLocationSasToken": {
-      "type": "securestring",
+        "type": "securestring",
+        "metadata": {
+            "description": "The sasToken required to access _artifactsLocation."
+        },
+        "defaultValue": ""
+    },
+    "publisher": {
+      "type": "string",
       "metadata": {
-          "description": "The sasToken required to access _artifactsLocation."
+        "description": "The VM Publisher"
       },
-      "defaultValue": ""
+      "defaultValue": "Canonical"
+    },
+    "offer": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM Offer"
+      },
+      "defaultValue": "UbuntuServer"
+    },
+    "SKU": {
+      "type": "string",
+      "metadata": {
+        "description": "The VM SKU"
+      },
+      "defaultValue": "16.04-LTS"
     }  
   },
   "variables": {
@@ -85,6 +113,27 @@
     "storageAPIVersion":"2016-12-01",
     "networkAPIVersion":"2016-09-01",
     "deploymentAPIVersion":"2016-09-01",
+    "linuxConfigurationChosen": "[concat('linuxConfiguration', parameters('authenticationType'))]",
+    "linuxConfigurationsshPublicKey": {
+      "disablePasswordAuthentication": true,
+      "ssh": {
+        "publicKeys": [
+          {
+            "path": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
+            "keyData": "[parameters('adminPasswordorSSHKey')]"
+          }
+        ]
+      }
+    },
+    "linuxConfigurationpassword": {
+        "disablePasswordAuthentication": false
+    },
+    "adminPasswordChosen": "[concat('adminPassword', parameters('authenticationType'))]",
+    "adminPasswordsshPublicKey": "",
+    "adminPasswordpassword": "[parameters('adminPasswordorSSHKey')]",
+    "publisher": "Canonical",
+    "offer": "UbuntuServer",
+    "sku": "16.04-LTS",
     "containerName":"msi",
     "createVMSSUrl":"[concat(parameters('_artifactsLocation'), '/createVMSS.json', parameters('_artifactsLocationSasToken'))]",
     "createRBACUrl":"[concat(substring(parameters('_artifactsLocation'),0,lastIndexof(parameters('_artifactsLocation'),'/')), '/templates/setUpRBAC.json', parameters('_artifactsLocationSasToken'))]"
@@ -123,27 +172,27 @@
       }
     },
     {
-      "name": "[variables('networkSecurityGroupName')]",
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "[variables('networkAPIVersion')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "securityRules": [
-          {
-            "name": "default-allow-rdp",
-            "properties": {
-              "priority": 1000,
-              "sourceAddressPrefix": "*",
-              "protocol": "TCP",
-              "destinationPortRange": "3389",
-              "access": "Allow",
-              "direction": "Inbound",
-              "sourcePortRange": "*",
-              "destinationAddressPrefix": "*"
-            }
-          }
-        ]
-      }
+        "name": "[variables('networkSecurityGroupName')]",
+        "type": "Microsoft.Network/networkSecurityGroups",
+        "apiVersion": "[variables('networkAPIVersion')]",
+        "location": "[parameters('location')]",
+        "properties": {
+            "securityRules": [
+                {
+                    "name": "default-allow-ssh",
+                    "properties": {
+                        "priority": 1000,
+                        "sourceAddressPrefix": "*",
+                        "protocol": "TCP",
+                        "destinationPortRange": "22",
+                        "access": "Allow",
+                        "direction": "Inbound",
+                        "sourcePortRange": "*",
+                        "destinationAddressPrefix": "*"
+                    }
+                }
+            ]
+        }
     },
     {
       "name": "creatingVMSS",
@@ -165,10 +214,7 @@
            "value": "[parameters('adminUsername')]"
           },
           "adminPassword": {
-            "value": "[parameters('adminPassword')]"
-          },
-          "windowsOSVersion": {
-            "value": "[parameters('windowsOSVersion')]"
+            "value": "[variables(variables('adminPasswordChosen'))]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -196,6 +242,18 @@
           },
           "storageAccountUri": {
             "value": "[reference(resourceId('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))).primaryEndpoints.blob]"
+          },
+          "linuxConfiguration": {
+              "value": "[variables(variables('linuxConfigurationChosen'))]"
+          },
+          "publisher": {
+            "value": "[parameters('publisher')]"
+          },
+          "offer": {
+            "value": "[parameters('offer')]"
+          },
+          "SKU": {
+            "value": "[parameters('SKU')]"
           }
         }
       }
@@ -253,16 +311,17 @@
               "createOption": "FromImage"
             },
             "imageReference": {
-              "publisher": "MicrosoftWindowsServer",
-              "offer": "WindowsServer",
-              "sku": "[parameters('windowsOSVersion')]",
+              "publisher": "[parameters('publisher')]",
+              "offer": "[parameters('offer')]",
+              "sku": "[parameters('sku')]",
               "version": "latest"
             }
           },
           "osProfile": {
             "computerNamePrefix": "[variables('vmssPrefix')]",
             "adminUsername": "[parameters('adminUsername')]",
-            "adminPassword": "[parameters('adminPassword')]"
+            "adminPassword": "[variables(variables('adminPasswordChosen'))]",
+            "linuxConfiguration": "[variables(variables('linuxConfigurationChosen'))]"
           },
           "networkProfile": {
             "networkInterfaceConfigurations": [
@@ -276,8 +335,8 @@
                       "properties": {
                         "subnet": {
                           "id": "[variables('subnetRef')]"
-                        },
-                        "publicIPAddressconfiguration": {
+                        },                     
+                        "publicipaddressconfiguration": {
                           "name": "publicip",
                           "properties": {
                             "idleTimeoutInMinutes": 15,
@@ -305,32 +364,35 @@
           "extensionProfile": {
             "extensions": [
               {
-                "name": "MSIWindowsExtension",
+                "name": "MSILinuxExtension",
                 "properties": {
-                  "publisher": "Microsoft.ManagedIdentity",
-                  "type": "ManagedIdentityExtensionForWindows",
-                  "typeHandlerVersion": "1.0",
-                  "autoUpgradeMinorVersion": true,
-                  "settings": {
-                      "port": 50342
-                  },
-                  "protectedSettings": {}
+                    "publisher": "Microsoft.ManagedIdentity",
+                    "type": "ManagedIdentityExtensionForLinux",
+                    "typeHandlerVersion": "1.0",
+                    "autoUpgradeMinorVersion": true,
+                    "settings": {
+                        "port": 50342
+                    },
+                    "protectedSettings": {}
                 }
               },
               {
                 "name": "CustomScriptExtension",
                 "properties": {
-                  "publisher": "Microsoft.Compute",
-                  "type": "CustomScriptExtension",
-                  "typeHandlerVersion": "1.8",
+                  "publisher": "Microsoft.Azure.Extensions",
+                  "type": "CustomScript",
+                  "typeHandlerVersion": "2.0",
                   "autoUpgradeMinorVersion": true,
                   "settings": {
-                    "fileUris": [
-                        "[concat(substring(parameters('_artifactsLocation'),0,lastIndexof(parameters('_artifactsLocation'),'/')), '/scripts/writeblob.ps1', parameters('_artifactsLocationSasToken'))]"
-                    ],
-                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File  .\\writeblob.ps1  -SubscriptionId ',subscription().subscriptionId,' -TenantId ',subscription().tenantId,' -ResourceGroupName ',resourceGroup().Name,' -StorageAccountName ',variables('storageAccountName'),' -ContainerName ',variables('containerName'),' -Verbose')]"
+                      "fileUris": [
+                          "[concat(substring(parameters('_artifactsLocation'),0,lastIndexof(parameters('_artifactsLocation'),'/')), '/scripts/writeblob.sh', parameters('_artifactsLocationSasToken'))]",
+                          "[concat(substring(parameters('_artifactsLocation'),0,lastIndexof(parameters('_artifactsLocation'),'/')), '/scripts/install-and-run-cli-2.sh', parameters('_artifactsLocationSasToken'))]"
+                      ]
+                  },
+                  "protectedSettings": {
+                    "commandToExecute": "[concat('./install-and-run-cli-2.sh -i \"', parameters('azureCLI2DockerImage'),'\" -s \"', subscription().subscriptionId, '\" -a \"', variables('storageAccountName'), '\" -c \"', variables('containerName'), '\" -r \"', resourceGroup().Name,'\"')]"
                   }
-                }
+                } 
               }
             ]
           }
