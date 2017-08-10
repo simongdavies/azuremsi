@@ -329,7 +329,7 @@
     },
      "principalId": {
       "type": "string",
-      "value": "[reference(concat(resourceId('Microsoft.Compute/virtualMachines/', variables('vmName')),'/providers/Microsoft.ManagedIdentity/Identities/default'),variables('managedIdentityAPIVersion')).principalId]"
+      "value": "[reference('Microsoft.Resources/deployments/creatingVM', variables('deploymentApiVersion')).outputs.principalId.value]"
     }
   }
 }
