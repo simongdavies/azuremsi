@@ -12,7 +12,7 @@ if [ -z $PORT ]; then
     PORT=50342
 fi
 
-for var in STORAGE_ACCOUNT SUBSCRIPTION_ID RESOURCE_GROUP 
+for var in STORAGE_ACCOUNT RESOURCE_GROUP 
 do
 
     if [ -z ${!var} ]; then
@@ -24,7 +24,7 @@ done
 
 # login using msi 
 
-az login -u ${SUBSCRIPTION_ID}@${PORT}
+az login --msi --msi-port ${PORT}
 
 # create a file and upload it to storage account using a key obtained via the logged in MSI , the MSI must have permission to perfrm these operations
 
