@@ -46,7 +46,7 @@ $success=$false
 
 # Get a token for ARM
 
-$headers=@{"MetaData"="True";}
+$headers=@{Metadata="true";}
 $resource="https://management.azure.com/"
 $postBody=@{authority="https://login.microsoftonline.com/$TenantId"; resource="$resource"}
 
