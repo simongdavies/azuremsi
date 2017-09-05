@@ -46,6 +46,7 @@ $success=$false
 
 # Get a token for ARM
 
+$headers=@{"MetaData"="True";}
 $resource="https://management.azure.com/"
 $postBody=@{authority="https://login.microsoftonline.com/$TenantId"; resource="$resource"}
 
@@ -57,7 +58,7 @@ do
         {
            Write-Verbose "Getting Token Retry $retry"
 
-           $reponse=Invoke-WebRequest -Uri http://localhost:50342/oauth2/token -Method POST -Body $postBody -UseBasicParsing
+           $reponse=Invoke-WebRequest -Uri http://localhost:50342/oauth2/token -Method POST -Body $postBody -UseBasicParsing -Headers $headers
            $result=ConvertFrom-Json -InputObject $reponse.Content
            $success=$true
         }
